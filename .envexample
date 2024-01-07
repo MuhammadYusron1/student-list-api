@@ -1,0 +1,5 @@
+# Rename this file to .env
+
+NODE_ENV = development  # set to production when in production environment
+PORT = 5000
+MONGO_URI = //YOURMONGOURI
