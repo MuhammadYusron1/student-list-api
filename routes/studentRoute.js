@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
 // Importing files from controllers
@@ -8,4 +8,4 @@ router.route("/").get((req, res, next) => {
     res.send("Hello, world!");
 });
 
-module.exports = router;
+export default router;
