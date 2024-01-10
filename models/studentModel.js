@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const studentSchema = mongoose.Schema(
     {
         name: {type: String, required: true, minLength: 2, maxLength: 36},
-        age: {type: Number, required: true, min: 15, max: 20},
+        age: {type: Number, required: true, min: 15, max: 63},
         sex: {
             type: String, 
             required: true, 

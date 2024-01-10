@@ -2,10 +2,10 @@ import express from 'express';
 const router = express.Router();
 
 // Importing files from controllers
+import { getStudent, setStudent } from '../controllers/studentController.js';
 
-router.route("/").get((req, res, next) => {
-    res.status(200);
-    res.send("Hello, world!");
-});
+router.route("/").get(getStudent);
+
+router.route("/set").post(setStudent);
 
 export default router;
