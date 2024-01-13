@@ -9,7 +9,7 @@ const studentSchema = mongoose.Schema(
             required: true, 
             enum: {
                 values: ['M', 'F'],
-                message: '{VALUE} is not supported'
+                message: '{VALUE} is not a sex type, insert M or F'
             }
         },
         address: {type: String, required: true, maxLength: 64},
