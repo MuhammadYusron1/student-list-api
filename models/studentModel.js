@@ -9,8 +9,17 @@ const studentSchema = mongoose.Schema(
             required: true, 
             enum: {
                 values: ['M', 'F'],
-                message: '{VALUE} is not a sex type, insert M or F'
-            }
+                message: '{VALUE} is not correct type, insert M or F'
+            },
+            // validate: {
+            //     validator: (value) => {
+            //         if ((value != 'M') || (value != 'F')) {
+            //             throw new Error('Invalid sex type');
+            //         }
+            //         return true;
+            //     },
+            //     message: (props) => `${props.value} is not a valid sex type`
+            // }
         },
         address: {type: String, required: true, maxLength: 64},
     },

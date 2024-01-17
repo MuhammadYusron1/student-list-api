@@ -7,7 +7,7 @@ import Student from '../models/studentModel.js';
 //* @route  GET /api/students/
 //* @access Public
 const getStudent = expressAsyncHandler(async (req, res) => {
-    const name = "Pitty";
+    const name = "Rini";
     const students = await Student.findOne({
         name: name
     });
@@ -52,7 +52,7 @@ const updateStudent = expressAsyncHandler(async (req, res) => {
         age: req.body.age,
         sex: req.body.sex,
         address: req.body.address
-    });
+    }, {runValidators: true});
 
     res.status(200).json(updatedStudent);
 });
