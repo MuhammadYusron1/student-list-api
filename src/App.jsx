@@ -1,25 +1,56 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { STUDENTS } from './students.js';
+import axios from "axios";
 
 function StudentRow({student}) {
+
   return (
     <tr className="odd:bg-white even:bg-gray-100 hover:bg-gray-100 dark:odd:bg-gray-800 dark:even:bg-gray-700 dark:hover:bg-gray-700">
-      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">{student.id}</td>
-      <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap dark:text-gray-200">{student.name}</td>
+      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">{student.name}</td>
+      <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap dark:text-gray-200">{student._id}</td>
       <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">{student.age}</td>
       <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">{student.sex}</td>
       <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">{student.address}</td>
-      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">Hihi</td>
+      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">HIHI</td>
     </tr>
   );
 }
 
 function StudentTable({students}) {
+  const [studs, setStuds] = useState([]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const config = {
+          url: '/',
+          method: 'get',
+          baseURL: 'http://localhost:5000/api/students',
+      };
+        const res = await axios(config);
+        setStuds(res.data);
+        // console.log(res.data);
+
+      } catch (err) {
+        if (err.res) {
+          // Not in the 200 response range 
+          throw new Error(err.res.data, err.res.status, err.res.headers);
+        } else {
+          throw new Error(err.stack);
+        }
+      }
+    }
+
+    fetchPosts();
+  }, [])
+
+  console.log(studs);
+
   const rows = [];
 
-  students.forEach((student) => {
+  studs.forEach((student) => {
     rows.push(
-      <StudentRow key={student.id} student={student} />
+      <StudentRow key={student._id} student={student} />
     );
   });
 
