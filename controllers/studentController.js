@@ -26,9 +26,11 @@ const getStudent = expressAsyncHandler(async (req, res) => {
 const setStudent = expressAsyncHandler(async (req, res) => {
     const student = await Student.create({
         name: req.body.name,
+        studentID: req.body.studentID,
         age: req.body.age,
         sex: req.body.sex,
-        address: req.body.address
+        address: req.body.address,
+        subject: req.body.subject,
     });
 
     res.status(200).json(student);
@@ -49,9 +51,11 @@ const updateStudent = expressAsyncHandler(async (req, res) => {
 
     const updatedStudent = await Student.updateOne({name: req.params.id}, {
         name: req.body.name,
+        studentID: req.body.studentID,
         age: req.body.age,
         sex: req.body.sex,
-        address: req.body.address
+        address: req.body.address,
+        subject: req.body.subject,
     }, {runValidators: true});
 
     res.status(200).json(updatedStudent);
