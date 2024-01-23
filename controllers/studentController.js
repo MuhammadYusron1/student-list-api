@@ -7,9 +7,9 @@ import Student from '../models/studentModel.js';
 //* @route  GET /api/students/
 //* @access Public
 const getStudent = expressAsyncHandler(async (req, res) => {
-    const name = "Rini";
-    const students = await Student.findOne({
-        name: name
+    const name = "Mia";
+    const students = await Student.find({
+        // name: name
     });
 
     if (!students) {
