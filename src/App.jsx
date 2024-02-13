@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
-import { STUDENTS } from './students.js';
+import AddStudentForm from './components/AddStudentForm.jsx';
+import Selection from './components/EditSelection.jsx';
+import DeleteStudent from './components/DeleteStudent.jsx';
 import axios from "axios";
 
-function StudentRow({student}) {
+function StudentRow({student, active, onActiveChange}) {
+  const [editActive, setEditActive] = useState({
+    editSelection: true,
+    editSelectionClose: false,
+	});
 
   return (
     <tr className="even:bg-white odd:bg-gray-100 hover:bg-gray-200 dark:even:bg-gray-800 dark:odd:bg-gray-700 dark:hover:bg-gray-700">
@@ -12,12 +18,15 @@ function StudentRow({student}) {
       <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">{student.sex}</td>
       <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">{student.address}</td>
       <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">{student.subject}</td>
-      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200"><button><i className="fa-solid fa-ellipsis fa-lg"></i></button></td>
+      <td className="relative px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">
+        <Selection active={active} onActiveChange={onActiveChange}  editActive={editActive} onEditActiveChange={setEditActive} />
+        <button id='student-btn' onClick={() => setEditActive({...editActive, editSelection: !editActive.editSelection})}><i className="fa-solid fa-ellipsis fa-lg"></i></button>
+      </td>
     </tr>
   );
 }
 
-function StudentTable({students}) {
+function StudentTable({ children, filterText, active, onActiveChange }) {
   const [studs, setStuds] = useState([]);
 
   // Fetch data from backend
@@ -51,8 +60,13 @@ function StudentTable({students}) {
   const rows = [];
 
   studs.forEach((student) => {
+    // search for student's name, ID
+    if ((student.name.toLowerCase().indexOf(filterText.toLowerCase()) === -1) && (student.studentID.toLowerCase().indexOf(filterText.toLowerCase()) === -1)) {
+      return;
+    }
+
     rows.push(
-      <StudentRow key={student._id} student={student} />
+      <StudentRow key={student._id} student={student} active={active} onActiveChange={onActiveChange}/>
     );
   });
 
@@ -62,32 +76,8 @@ function StudentTable({students}) {
         <div className="p-1.5 min-w-full inline-block align-middle">
           <div className="overflow-hidden">
             {/* Table Title Starts Here*/}
-            <div className='bg-[#435d7d] text-white min-w-full rounded-b-none rounded-t py-4 px-8'>
-              <div className='flex flex-row flex-wrap items-stretch justify-between content-stretch'>
-                <div className='self-auto order-none block px-2 grow-0 shrink basis-auto'>
-                  <h2 className='text-[24px] font-bold capitalize'>manage students</h2>
-                </div>
-                <form className='self-auto order-none block w-3/6 px-2 grow-0 shrink basis-auto'>   
-                  <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
-                      <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                      </svg>
-                    </div>
-                    <input type="search" id="default-search" className="block w-full p-4 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for student's name, ID, or address..." />
-                    <button type="submit" className="text-white absolute end-2.5 bottom-2.5 bg-[#435d7d] hover:bg-[#2b415b] transition-all duration-100 ease-linear focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
-                  </div>
-                </form>
-                <div className='block grow-0 shrink basis-auto self-auto order-none px-2 text-[24px]'>
-                  <span className='inline-block float-right text-sm font-normal text-center align-middle rounded-sm min-w-16'>
-                    <button className='capitalize ml-4 px-3 py-1.5 bg-red-600 hover:bg-red-700 transition-all duration-100 ease-linear'><i className="fa-solid fa-circle-minus"></i> delete selected</button>
-                    <button className='capitalize ml-4 px-3 py-1.5 bg-green-600 hover:bg-green-700 transition-all duration-100 ease-linear'><i className="fa-solid fa-circle-plus"></i> add new student</button>
-                  </span>
-                </div>
-              </div>
-            </div>
-             {/* Table Title Ends Here*/}
+            {children}
+            {/* Table Title Ends Here*/}
             {/* Table Starts Here */}
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead>
@@ -130,14 +120,61 @@ function StudentTable({students}) {
   );
 }
 
-function FilterableStudentTable({students}) {
+function SearchBar({filterText, onFilterTextChange, active, onActiveChange}) {
+  // console.log(filterText);
+  // console.log(active);
+
   return (
-    <>
-      <StudentTable students={students} />
-    </>
+    <div className='bg-[#435d7d] text-white min-w-full rounded-b-none rounded-t py-4 px-8'>
+      <div className='flex flex-row flex-wrap items-stretch justify-between content-stretch'>
+        <div className='self-auto order-none block px-2 grow-0 shrink basis-auto'>
+          <h2 className='text-[24px] font-bold capitalize'>manage students</h2>
+        </div>
+        {/* The searchbar */}
+        <form className='self-auto order-none block w-3/6 px-2 grow-0 shrink basis-auto' onSubmit={e => e.preventDefault()}>   
+          <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3"> {/* <!-- Magnifier icon --> */}
+              <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+              </svg>
+            </div>
+            <input type="search" id="default-search" value={filterText} onChange={e => onFilterTextChange(e.target.value)} className="block w-full p-4 text-xs text-gray-900 border border-gray-300 rounded-lg md:text-sm ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for student's name or ID..." />
+            <button type='submit' className="text-white absolute end-2.5 bottom-2.5 bg-[#435d7d] hover:bg-[#2b415b] transition-all duration-100 ease-linear focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+          </div>
+        </form>
+        <div className='block grow-0 shrink basis-auto self-auto order-none px-2 text-[24px]'>
+          <span className='inline-block float-right text-sm font-normal text-center align-middle rounded-sm min-w-16'>
+            <button onClick={() => onActiveChange({...active, delete: !active.delete})} className='capitalize ml-4 px-3 py-1.5 bg-red-600 hover:bg-red-700 transition-all duration-100 ease-linear'><i className="fa-solid fa-circle-minus"></i> delete selected</button>
+            <button onClick={() => onActiveChange({...active, add: !active.add})} className='capitalize ml-4 px-3 py-1.5 bg-green-600 hover:bg-green-700 transition-all duration-100 ease-linear'><i className="fa-solid fa-circle-plus"></i> add new student</button>
+          </span>
+        </div>
+      </div>
+    </div>  
+  );
+}
+
+function FilterableStudentTable() {
+  const [filterText, setFilterText] = useState('');
+  const [active, setActive] = useState({
+		add: true,
+		addClose: false,
+    edit: true,
+    editClose: false,
+    delete: true,
+    deleteClose: false,
+	});
+
+  return (
+    <StudentTable filterText={filterText} active={active} onActiveChange={setActive} > 
+      <SearchBar filterText={filterText} onFilterTextChange={setFilterText} 
+                  active={active} onActiveChange={setActive} />
+      <DeleteStudent active={active} onActiveChange={setActive} />
+      <AddStudentForm active={active} onActiveChange={setActive} /> 
+    </StudentTable>
   )
 }
 
 export default function App() {
-  return <FilterableStudentTable students={STUDENTS} />;
+  return <FilterableStudentTable />;
 }
