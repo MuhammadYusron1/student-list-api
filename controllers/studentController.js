@@ -41,7 +41,7 @@ const setStudent = expressAsyncHandler(async (req, res) => {
 //* @access Public
 const updateStudent = expressAsyncHandler(async (req, res) => {
     const students = await Student.findOne({
-        name: req.params.id
+        _id: req.params.id
     });
 
     if (!students) {
@@ -49,7 +49,7 @@ const updateStudent = expressAsyncHandler(async (req, res) => {
         throw new Error(`There is no student named ${req.params.id}`);
     }
 
-    const updatedStudent = await Student.updateOne({name: req.params.id}, {
+    const updatedStudent = await Student.updateOne({_id: req.params.id}, {
         name: req.body.name,
         studentID: req.body.studentID,
         age: req.body.age,
@@ -66,7 +66,7 @@ const updateStudent = expressAsyncHandler(async (req, res) => {
 //* @access Public
 const deleteStudent = expressAsyncHandler(async (req, res) => {
     const students = await Student.findOne({
-        name: req.params.id
+        _id: req.params.id
     });
 
     if (!students) {
@@ -74,7 +74,7 @@ const deleteStudent = expressAsyncHandler(async (req, res) => {
         throw new Error(`There is no student named ${req.params.id}`);
     }
 
-    const deletedStudent = await Student.deleteOne({name: req.params.id});
+    const deletedStudent = await Student.deleteOne({_id: req.params.id});
 
     res.status(200).json(deletedStudent);
 });
