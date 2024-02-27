@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
 import AddStudentForm from './components/AddStudentForm.jsx';
 import Selection from './components/EditSelection.jsx';
-import DeleteStudent from './components/DeleteStudent.jsx';
+import DeleteSeveralStudents from './components/DeleteSeveralStudents.jsx';
 import axios from "axios";
 
-function StudentRow({student, active, onActiveChange}) {
+function StudentRow({student, active, onActiveChange, setStdID, handleDelete, handleEdit, putName, setPutName, putStudentID, setPutStudentID, putAge, setPutAge, putSex, setPutSex, putAddress, setPutAddress, putSubject, setPutSubject}) {
   const [editActive, setEditActive] = useState({
     editSelection: true,
     editSelectionClose: false,
 	});
+
+  function editSelection() {
+    setEditActive({...editActive, editSelection: !editActive.editSelection}); // toggle selection on/off
+    setStdID(student._id); // set current unique student id to its unique stdent id
+  }
 
   return (
     <tr className="even:bg-white odd:bg-gray-100 hover:bg-gray-200 dark:even:bg-gray-800 dark:odd:bg-gray-700 dark:hover:bg-gray-700">
@@ -19,8 +24,9 @@ function StudentRow({student, active, onActiveChange}) {
       <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">{student.address}</td>
       <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">{student.subject}</td>
       <td className="relative px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">
-        <Selection active={active} onActiveChange={onActiveChange}  editActive={editActive} onEditActiveChange={setEditActive} />
-        <button id='student-btn' onClick={() => setEditActive({...editActive, editSelection: !editActive.editSelection})}><i className="fa-solid fa-ellipsis fa-lg"></i></button>
+        <Selection active={active} onActiveChange={onActiveChange} editActive={editActive} onEditActiveChange={setEditActive} handleDelete={handleDelete} handleEdit={handleEdit}
+         putName={putName} setPutName={setPutName} putStudentID={putStudentID} setPutStudentID={setPutStudentID} putAge={putAge} setPutAge={setPutAge} putSex={putSex} setPutSex={setPutSex} putAddress={putAddress} setPutAddress={setPutAddress} putSubject={putSubject} setPutSubject={setPutSubject} />
+        <button onClick={editSelection}><i className="fa-solid fa-ellipsis fa-lg"></i></button>
       </td>
     </tr>
   );
@@ -28,6 +34,14 @@ function StudentRow({student, active, onActiveChange}) {
 
 function StudentTable({ children, filterText, active, onActiveChange }) {
   const [studs, setStuds] = useState([]);
+  const [stdID, setStdID] = useState('');   // Variable of student unique ID
+  // Edit / put / update student variables
+  const [putName, setPutName] = useState('');
+  const [putStudentID, setPutStudentID] = useState('');
+  const [putAge, setPutAge] = useState('');
+  const [putSex, setPutSex] = useState('M');
+  const [putAddress, setPutAddress] = useState('');
+  const [putSubject, setPutSubject] = useState('Engineering');
 
   // Fetch data from backend
   useEffect(() => {
@@ -37,7 +51,7 @@ function StudentTable({ children, filterText, active, onActiveChange }) {
           url: '/',
           method: 'get',
           baseURL: 'http://localhost:5000/api/students',
-      };
+        };
         const res = await axios(config);
         setStuds(res.data);
         // console.log(res.data);
@@ -54,8 +68,47 @@ function StudentTable({ children, filterText, active, onActiveChange }) {
 
     fetchPosts();
   }, [])
-
   // console.log(studs);
+
+  // Edit student list
+  const handleEdit = async (e) => {
+    // e.preventDefault();
+    try {
+      const config = {
+        url: `/update/${stdID}`,
+        method: 'put',
+        baseURL: 'http://localhost:5000/api/students',
+        data: {
+          name: putName,
+          studentID: putStudentID,
+          age: putAge,
+          sex: putSex,
+          address: putAddress,
+          subject: putSubject,
+        },
+      };
+      const res = await axios(config);
+      console.log(res.data);
+    } catch (err) {
+      throw new Error(err.stack);
+    }
+  }
+
+  // Delete student list
+  const handleDelete = async (e) => {
+    // e.preventDefault();
+    try {
+      const config = {
+        url: `/delete/${stdID}`,
+        method: 'delete',
+        baseURL: 'http://localhost:5000/api/students',
+      };
+      const res = await axios(config);
+      console.log(res.data);
+    } catch (err) {
+      throw new Error(err.stack);
+    }
+  };
 
   const rows = [];
 
@@ -66,7 +119,8 @@ function StudentTable({ children, filterText, active, onActiveChange }) {
     }
 
     rows.push(
-      <StudentRow key={student._id} student={student} active={active} onActiveChange={onActiveChange}/>
+      <StudentRow key={student._id} student={student} active={active} onActiveChange={onActiveChange} handleDelete={handleDelete} handleEdit={handleEdit} setStdID={setStdID} 
+      putName={putName} setPutName={setPutName} putStudentID={putStudentID} setPutStudentID={setPutStudentID} putAge={putAge} setPutAge={setPutAge} putSex={putSex} setPutSex={setPutSex} putAddress={putAddress} setPutAddress={setPutAddress} putSubject={putSubject} setPutSubject={setPutSubject} />
     );
   });
 
@@ -145,7 +199,8 @@ function SearchBar({filterText, onFilterTextChange, active, onActiveChange}) {
         </form>
         <div className='block grow-0 shrink basis-auto self-auto order-none px-2 text-[24px]'>
           <span className='inline-block float-right text-sm font-normal text-center align-middle rounded-sm min-w-16'>
-            <button onClick={() => onActiveChange({...active, delete: !active.delete})} className='capitalize ml-4 px-3 py-1.5 bg-red-600 hover:bg-red-700 transition-all duration-100 ease-linear'><i className="fa-solid fa-circle-minus"></i> delete selected</button>
+            {/* <button onClick={() => onActiveChange({...active, delete: !active.delete})} className='capitalize ml-4 px-3 py-1.5 bg-red-600 hover:bg-red-700 transition-all duration-100 ease-linear'><i className="fa-solid fa-circle-minus"></i> delete selected</button> */}
+            <button onClick={() => onActiveChange({...active, deleteSeveral: !active.deleteSeveral})} className='capitalize ml-4 px-3 py-1.5 bg-red-600 hover:bg-red-700 transition-all duration-100 ease-linear'><i className="fa-solid fa-circle-minus"></i> delete selected</button>
             <button onClick={() => onActiveChange({...active, add: !active.add})} className='capitalize ml-4 px-3 py-1.5 bg-green-600 hover:bg-green-700 transition-all duration-100 ease-linear'><i className="fa-solid fa-circle-plus"></i> add new student</button>
           </span>
         </div>
@@ -163,14 +218,49 @@ function FilterableStudentTable() {
     editClose: false,
     delete: true,
     deleteClose: false,
+    deleteSeveral: true,
+    deleteSeveralClose: false,
 	});
+  // Add / post student variables
+  const [postName, setPostName] = useState('');
+  const [postStudentID, setPostStudentID] = useState('');
+  const [postAge, setPostAge] = useState('');
+  const [postSex, setPostSex] = useState('M');
+  const [postAddress, setPostAddress] = useState('');
+  const [postSubject, setPostSubject] = useState('Engineering');
+
+  // Add student list
+  const handleSubmit = async (e) => {
+    // e.preventDefault();
+    try {
+      const config = {
+        url: '/set',
+        method: 'post',
+        baseURL: 'http://localhost:5000/api/students',
+        data: {
+          name: postName,
+          studentID: postStudentID,
+          age: postAge,
+          sex: postSex,
+          address: postAddress,
+          subject: postSubject,
+        },
+      };
+      const res = await axios(config);
+      console.log(res.data);
+    } catch (err) {
+      throw new Error(err.stack);
+    }
+  };
 
   return (
     <StudentTable filterText={filterText} active={active} onActiveChange={setActive} > 
       <SearchBar filterText={filterText} onFilterTextChange={setFilterText} 
                   active={active} onActiveChange={setActive} />
-      <DeleteStudent active={active} onActiveChange={setActive} />
-      <AddStudentForm active={active} onActiveChange={setActive} /> 
+      <DeleteSeveralStudents active={active} onActiveChange={setActive} />
+      <AddStudentForm active={active} onActiveChange={setActive} handleSubmit={handleSubmit}
+       postName={postName} setPostName={setPostName} postStudentID={postStudentID} setPostStudentID={setPostStudentID} postAge={postAge} setPostAge={setPostAge} 
+       postSex={postSex} setPostSex={setPostSex} postAddress={postAddress} setPostAddress={setPostAddress} postSubject={postSubject} setPostSubject={setPostSubject} /> 
     </StudentTable>
   )
 }
