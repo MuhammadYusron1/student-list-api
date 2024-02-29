@@ -35,7 +35,7 @@ export default function EditStudentForm({active, onActiveChange, handleEdit, put
 							</div>
 							<div className='mb-4'>
 								<label className='inline-block mb-2 capitalize'>address</label>
-								<textarea value={putAddress} onChange={(e) => setPutAddress(e.target.value)} className='block w-full h-auto resize-y text-base font-normal text-[#495057] bg-white bg-clip-padding border border-solid border-[#ced4da] py-1.5 px-3 focus:outline-0' type='text' required></textarea>
+								<textarea value={putAddress} onChange={(e) => setPutAddress(e.target.value)} className='block w-full h-auto resize-y text-base font-normal text-[#495057] bg-white bg-clip-padding border border-solid border-[#ced4da] py-1.5 px-3 focus:outline-0' type='text' max='64' required></textarea>
 							</div>
 							<div className='mb-4'>
 								<label className='inline-block mb-2 capitalize'>subject</label>
