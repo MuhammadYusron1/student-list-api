@@ -4,15 +4,10 @@ import Selection from './components/EditSelection.jsx';
 import DeleteSeveralStudents from './components/DeleteSeveralStudents.jsx';
 import axios from "axios";
 
-function StudentRow({student, active, onActiveChange, setStdID, handleDelete, handleEdit, putName, setPutName, putStudentID, setPutStudentID, putAge, setPutAge, putSex, setPutSex, putAddress, setPutAddress, putSubject, setPutSubject}) {
-  const [editActive, setEditActive] = useState({
-    editSelection: true,
-    editSelectionClose: false,
-	});
-
-  function editSelection() {
-    setEditActive({...editActive, editSelection: !editActive.editSelection}); // toggle selection on/off
-    setStdID(student._id); // set current unique student id to its unique stdent id
+function StudentRow({student, active, onActiveChange, stdID, onStdIDChange, handleDelete, handleEdit, editActive, onEditActiveChange, putName, setPutName, putStudentID, setPutStudentID, putAge, setPutAge, putSex, setPutSex, putAddress, setPutAddress, putSubject, setPutSubject}) {
+  function handleEditSelection() {
+    onEditActiveChange({...editActive, editSelection: !editActive.editSelection}); // toggle selection on/off
+    onStdIDChange(student._id); // set current unique student id to its unique stdent id
   }
 
   return (
@@ -24,15 +19,19 @@ function StudentRow({student, active, onActiveChange, setStdID, handleDelete, ha
       <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">{student.address}</td>
       <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">{student.subject}</td>
       <td className="relative px-6 py-4 text-sm text-gray-800 whitespace-nowrap dark:text-gray-200">
-        <Selection active={active} onActiveChange={onActiveChange} editActive={editActive} onEditActiveChange={setEditActive} handleDelete={handleDelete} handleEdit={handleEdit}
+        <Selection active={active} onActiveChange={onActiveChange} editActive={editActive} onEditActiveChange={onEditActiveChange} handleDelete={handleDelete} handleEdit={handleEdit} stdID={stdID} student_ID={student._id}
          putName={putName} setPutName={setPutName} putStudentID={putStudentID} setPutStudentID={setPutStudentID} putAge={putAge} setPutAge={setPutAge} putSex={putSex} setPutSex={setPutSex} putAddress={putAddress} setPutAddress={setPutAddress} putSubject={putSubject} setPutSubject={setPutSubject} />
-        <button onClick={editSelection}><i className="fa-solid fa-ellipsis fa-lg"></i></button>
+        <button onClick={handleEditSelection}><i className="fa-solid fa-ellipsis fa-lg"></i></button>
       </td>
     </tr>
   );
 }
 
 function StudentTable({ children, filterText, active, onActiveChange }) {
+  const [editActive, setEditActive] = useState({ 
+    editSelection: true,          // toggle selection on&off
+    editSelectionClose: false,
+	});
   const [studs, setStuds] = useState([]);
   const [stdID, setStdID] = useState('');   // Variable of student unique ID
   // Edit / put / update student variables
@@ -119,7 +118,7 @@ function StudentTable({ children, filterText, active, onActiveChange }) {
     }
 
     rows.push(
-      <StudentRow key={student._id} student={student} active={active} onActiveChange={onActiveChange} handleDelete={handleDelete} handleEdit={handleEdit} setStdID={setStdID} 
+      <StudentRow key={student._id} student={student} active={active} onActiveChange={onActiveChange} handleDelete={handleDelete} handleEdit={handleEdit} stdID={stdID} onStdIDChange={setStdID} editActive={editActive} onEditActiveChange={setEditActive}
       putName={putName} setPutName={setPutName} putStudentID={putStudentID} setPutStudentID={setPutStudentID} putAge={putAge} setPutAge={setPutAge} putSex={putSex} setPutSex={setPutSex} putAddress={putAddress} setPutAddress={setPutAddress} putSubject={putSubject} setPutSubject={setPutSubject} />
     );
   });
