@@ -32,8 +32,10 @@ function StudentTable({ children, filterText, active, onActiveChange }) {
     editSelection: true,          // toggle selection on&off
     editSelectionClose: false,
 	});
-  const [studs, setStuds] = useState([]);
+  const [studs, setStuds] = useState([]);   // List of all students
   const [stdID, setStdID] = useState('');   // Variable of student unique ID
+  const [currentPage, setCurrentPage] = useState(1);    // Page of current pagination
+  const [studentsPerPage, setStudentsPerPage] = useState(10);    // Number of students per page
   // Edit / put / update student variables
   const [putName, setPutName] = useState('');
   const [putStudentID, setPutStudentID] = useState('');
@@ -109,9 +111,33 @@ function StudentTable({ children, filterText, active, onActiveChange }) {
     }
   };
 
+  // Get current students
+  const indexOfLastStudent = currentPage * studentsPerPage;
+  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
+  const currentStudents = studs.slice(indexOfFirstStudent, indexOfLastStudent);
+
+  // Change page
+  const totalPages = Math.ceil(studs.length / studentsPerPage);
+  function handlePageUp() {             // a function to increment current page
+    if (currentPage >= totalPages){
+      setCurrentPage(1);
+    }
+    else {
+      setCurrentPage(currentPage + 1);
+    }
+  }
+  function handlePageDown() {           // a function to decrement current page
+    if (currentPage <= 1){
+      setCurrentPage(totalPages);
+    }
+    else {
+      setCurrentPage(currentPage - 1);
+    }
+  }
+
   const rows = [];
 
-  studs.forEach((student) => {
+  currentStudents.forEach((student) => {
     // search for student's name, ID
     if ((student.name.toLowerCase().indexOf(filterText.toLowerCase()) === -1) && (student.studentID.toLowerCase().indexOf(filterText.toLowerCase()) === -1)) {
       return;
@@ -124,52 +150,65 @@ function StudentTable({ children, filterText, active, onActiveChange }) {
   });
 
   return (
-    <div className="flex flex-col">
-      <div className="block w-full"> {/* <!-- should add overflow-x-auto --> */}
-        <div className="p-1.5 min-w-full inline-block align-middle">
-          <div className="overflow-hidden">
-            {/* Table Title Starts Here*/}
-            {children}
-            {/* Table Title Ends Here*/}
-            {/* Table Starts Here */}
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead>
-                <tr>
-                  <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start">Name</th>
-                  <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start">Student Id</th>
-                  <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start">Age</th>
-                  <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start">Sex</th>
-                  <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start">Address</th>
-                  <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start">Subject</th>
-                  <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows}
-              </tbody>
-            </table>
-            {/* Table Ends Here */}
-            {/* <!-- Pagination --> */}
-            <nav className="flex items-center justify-end gap-x-1">
-              <button type="button" className="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-2 text-sm rounded-lg text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10">
-                <i className="fa-solid fa-angle-left fa-sm"></i>
-                <span aria-hidden="true" className="sr-only">Previous</span>
-              </button>
-              <div className="flex items-center gap-x-1">
-                <span className="min-h-[38px] min-w-[38px] flex justify-center items-center border border-gray-200 text-gray-800 py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:border-gray-700 dark:text-white dark:focus:bg-white/10">1</span>
-                <span className="min-h-[38px] flex justify-center items-center text-gray-500 py-2 px-1.5 text-sm dark:text-gray-500">of</span>
-                <span className="min-h-[38px] flex justify-center items-center text-gray-500 py-2 px-1.5 text-sm dark:text-gray-500">3</span>
-              </div>
-              <button type="button" className="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-2 text-sm rounded-lg text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10">
-                <span aria-hidden="true" className="sr-only">Next</span>
-                <i className="fa-solid fa-angle-right fa-sm"></i>
-              </button>
-            </nav>
-            {/* <!-- End Pagination --> */}
+    <>
+      {/* Table Title Starts Here*/}
+      {children}
+      {/* Table Title Ends Here*/}
+      <div className="flex flex-col">
+        <div className="w-full overflow-x-auto"> {/* block w-full overflow-x-auto */}
+          <div className="p-1.5 min-w-full inline-block align-middle">
+            <div className="overflow-hidden">
+              {/* Table Starts Here */}
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead>
+                  <tr>
+                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start">Name</th>
+                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start">Student Id</th>
+                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start">Age</th>
+                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start">Sex</th>
+                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start">Address</th>
+                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start">Subject</th>
+                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase text-start"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows}
+                </tbody>
+              </table>
+              {/* Table Ends Here */}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      {/* <!-- Pagination --> */}
+      <div className='flex items-center justify-end gap-x-1'>Showing<span> {currentStudents.length} </span>of<span> {studs.length} </span>records</div>
+      <nav className="flex items-center justify-end gap-x-1">
+        <div>
+          <span>Show</span>
+          <select value={studentsPerPage} onChange={(e) => setStudentsPerPage(e.target.value)}>
+            <option value='10'>10</option>
+            <option value='25'>25</option>
+            <option value='50'>50</option>
+            <option value='100'>100</option>
+          </select>
+          <span>per page</span>
+        </div>
+        <button onClick={handlePageDown} type="button" className="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-2 text-sm rounded-lg text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10">
+          <i className="fa-solid fa-angle-left fa-sm"></i>
+          <span aria-hidden="true" className="sr-only">Previous</span>
+        </button>
+        <div className="flex items-center gap-x-1">
+          <span className="min-h-[38px] min-w-[38px] flex justify-center items-center border border-gray-200 text-gray-800 py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:border-gray-700 dark:text-white dark:focus:bg-white/10">{currentPage}</span>
+          <span className="min-h-[38px] flex justify-center items-center text-gray-500 py-2 px-1.5 text-sm dark:text-gray-500">of</span>
+          <span className="min-h-[38px] flex justify-center items-center text-gray-500 py-2 px-1.5 text-sm dark:text-gray-500">{totalPages}</span>
+        </div>
+        <button onClick={handlePageUp} type="button" className="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-2 text-sm rounded-lg text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10">
+          <span aria-hidden="true" className="sr-only">Next</span>
+          <i className="fa-solid fa-angle-right fa-sm"></i>
+        </button>
+      </nav>
+      {/* <!-- End Pagination --> */}
+    </>
   );
 }
 
@@ -179,7 +218,7 @@ function SearchBar({filterText, onFilterTextChange, active, onActiveChange}) {
 
   return (
     <div className='bg-[#435d7d] text-white min-w-full rounded-b-none rounded-t py-4 px-8'>
-      <div className='flex flex-row flex-wrap items-stretch justify-between content-stretch'>
+      <div className='flex flex-col items-center justify-between p-4 space-y-3 md:flex-row md:space-y-0 md:space-x-4'> {/* flex flex-row flex-wrap items-stretch justify-between content-stretch */}
         <div className='self-auto order-none block px-2 grow-0 shrink basis-auto'>
           <h2 className='text-[24px] font-bold capitalize'>manage students</h2>
         </div>
@@ -193,13 +232,12 @@ function SearchBar({filterText, onFilterTextChange, active, onActiveChange}) {
               </svg>
             </div>
             <input type="search" id="default-search" value={filterText} onChange={e => onFilterTextChange(e.target.value)} className="block w-full p-4 text-xs text-gray-900 border border-gray-300 rounded-lg md:text-sm ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for student's name or ID..." />
-            <button type='submit' className="text-white absolute end-2.5 bottom-2.5 bg-[#435d7d] hover:bg-[#2b415b] transition-all duration-100 ease-linear focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+            {/* <button type='submit' className="text-white absolute end-2.5 bottom-2.5 bg-[#435d7d] hover:bg-[#2b415b] transition-all duration-100 ease-linear focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button> */}    {/*Search button*/}
           </div>
         </form>
         <div className='block grow-0 shrink basis-auto self-auto order-none px-2 text-[24px]'>
           <span className='inline-block float-right text-sm font-normal text-center align-middle rounded-sm min-w-16'>
-            {/* <button onClick={() => onActiveChange({...active, delete: !active.delete})} className='capitalize ml-4 px-3 py-1.5 bg-red-600 hover:bg-red-700 transition-all duration-100 ease-linear'><i className="fa-solid fa-circle-minus"></i> delete selected</button> */}
-            <button onClick={() => onActiveChange({...active, deleteSeveral: !active.deleteSeveral})} className='capitalize ml-4 px-3 py-1.5 bg-red-600 hover:bg-red-700 transition-all duration-100 ease-linear'><i className="fa-solid fa-circle-minus"></i> delete selected</button>
+            {/* <button onClick={() => onActiveChange({...active, deleteSeveral: !active.deleteSeveral})} className='capitalize ml-4 px-3 py-1.5 bg-red-600 hover:bg-red-700 transition-all duration-100 ease-linear'><i className="fa-solid fa-circle-minus"></i> delete selected</button> */}
             <button onClick={() => onActiveChange({...active, add: !active.add})} className='capitalize ml-4 px-3 py-1.5 bg-green-600 hover:bg-green-700 transition-all duration-100 ease-linear'><i className="fa-solid fa-circle-plus"></i> add new student</button>
           </span>
         </div>
@@ -256,7 +294,7 @@ function FilterableStudentTable() {
     <StudentTable filterText={filterText} active={active} onActiveChange={setActive} > 
       <SearchBar filterText={filterText} onFilterTextChange={setFilterText} 
                   active={active} onActiveChange={setActive} />
-      <DeleteSeveralStudents active={active} onActiveChange={setActive} />
+      {/* <DeleteSeveralStudents active={active} onActiveChange={setActive} /> */}
       <AddStudentForm active={active} onActiveChange={setActive} handleSubmit={handleSubmit}
        postName={postName} setPostName={setPostName} postStudentID={postStudentID} setPostStudentID={setPostStudentID} postAge={postAge} setPostAge={setPostAge} 
        postSex={postSex} setPostSex={setPostSex} postAddress={postAddress} setPostAddress={setPostAddress} postSubject={postSubject} setPostSubject={setPostSubject} /> 
