@@ -200,8 +200,8 @@ function SearchBar({filterText, onFilterTextChange, active, onActiveChange}) {
 }
 
 function FilterableStudentTable() {
-  const [filterText, setFilterText] = useState('');
-  const [active, setActive] = useState({
+  const [filterText, setFilterText] = useState('');     // For student search filter
+  const [active, setActive] = useState({      // Toggle student add, edit, and delete form
 		add: true,
 		addClose: false,
     edit: true,
