@@ -1,3 +1,5 @@
+// This is student's database for development purpose only. Current data is obtained from the backed
+
 export const STUDENTS = [
     {
         id: 10001,
