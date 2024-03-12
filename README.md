@@ -12,6 +12,13 @@ Rename the .envexample to .env and add your MONGO_URI
 npm install
 ```
 
+### Update dependencies if necessary
+
+```
+npm outdated    // to check which package is outdated
+npm update      // run update packages
+```
+
 ### Run Server
 
 ```
